@@ -1,0 +1,186 @@
+{
+	"name": "PL_Job_Trend_Ingestion_Master",
+	"properties": {
+		"activities": [
+			{
+				"name": "Extract data",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "Set Submission",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Content-Type": "application/json",
+							"x-rapidapi-host": "linkedin-job-search-api.p.rapidapi.com"
+						},
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Rest",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Json",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "lakeprod",
+							"Folder": "@concat( 'Landed/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss') )"
+						}
+					}
+				]
+			},
+			{
+				"name": "Extract data Jsearch",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set Submission",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Content-Type": "application/json",
+							"x-rapidapi-host": "jsearch.p.rapidapi.com"
+						},
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Rest_Jsearch",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Json",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "lakeprod",
+							"Folder": {
+								"value": "@concat( 'Landed/', variables('Slot'), '/',variables('Submission'))",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Set Slot",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Slot",
+					"value": {
+						"value": "@concat(formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd'))",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Submission",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Slot",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Submission",
+					"value": {
+						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss') ",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"Slot": {
+				"type": "String"
+			},
+			"Submission": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
