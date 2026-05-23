@@ -7,7 +7,17 @@
 		"typeProperties": {
 			"url": "https://linkedin-job-search-api.p.rapidapi.com",
 			"enableServerCertificateValidation": true,
-			"authenticationType": "Anonymous"
+			"authenticationType": "Anonymous",
+			"authHeaders": {
+				"x-rapidapi-key": {
+					"type": "AzureKeyVaultSecret",
+					"store": {
+						"referenceName": "LS_KV_job_trend_analytics",
+						"type": "LinkedServiceReference"
+					},
+					"secretName": "x-rapidapi-key"
+				}
+			}
 		}
 	}
 }
