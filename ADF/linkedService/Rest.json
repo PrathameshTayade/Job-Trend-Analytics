@@ -1,0 +1,13 @@
+{
+	"name": "Rest",
+	"properties": {
+		"description": "Hits the API and copies the data",
+		"annotations": [],
+		"type": "RestService",
+		"typeProperties": {
+			"url": "https://linkedin-job-search-api.p.rapidapi.com",
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Anonymous"
+		}
+	}
+}
