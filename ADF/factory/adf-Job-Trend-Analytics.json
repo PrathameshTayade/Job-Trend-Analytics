@@ -1,0 +1,15 @@
+{
+	"name": "adf-Job-Trend-Analytics",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "ffae2254-6fd1-4308-8a56-b86defc19a72",
+		"tenantId": "8d7e5f74-9b5b-4b2a-b6f0-95355369ee26"
+	}
+}
