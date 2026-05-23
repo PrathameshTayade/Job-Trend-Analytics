@@ -21,7 +21,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"folderPath": {
-					"value": "@concat(\n'Landed/',\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'),\n'/',\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'),\n'/',\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd'),\n'/',\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss')\n)",
+					"value": "@dataset().Folder",
 					"type": "Expression"
 				},
 				"fileSystem": {

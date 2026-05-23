@@ -1,6 +1,63 @@
 {
 	"name": "PL_Job_Trend_Ingestion_Master",
 	"properties": {
+		"activities": [
+			{
+				"name": "Extract data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Content-Type": "application/json",
+							"x-rapidapi-host": "linkedin-job-search-api.p.rapidapi.com"
+						},
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_Rest",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_Json",
+						"type": "DatasetReference",
+						"parameters": {
+							"Container": "lakeprod",
+							"Folder": "@concat( 'Landed/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss') )"
+						}
+					}
+				]
+			}
+		],
 		"annotations": []
 	}
 }
