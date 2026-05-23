@@ -1,0 +1,10 @@
+{
+	"name": "LS_KV_job_trend_analytics",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://kv-job-trend-analytics.vault.azure.net/"
+		}
+	}
+}
