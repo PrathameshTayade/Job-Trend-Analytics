@@ -61,7 +61,10 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"Container": "lakeprod",
-							"Folder": "@concat( 'Landed/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd'), '/', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss') )"
+							"Folder": {
+								"value": "@concat( 'Landed/', 'Linkedin','/',variables('Slot'), '/',variables('Submission'))",
+								"type": "Expression"
+							}
 						}
 					}
 				]
@@ -124,7 +127,7 @@
 						"parameters": {
 							"Container": "lakeprod",
 							"Folder": {
-								"value": "@concat( 'Landed/', variables('Slot'), '/',variables('Submission'))",
+								"value": "@concat( 'Landed/', 'JSearch','/',variables('Slot'), '/',variables('Submission'))",
 								"type": "Expression"
 							}
 						}
@@ -167,12 +170,62 @@
 				"typeProperties": {
 					"variableName": "Submission",
 					"value": {
-						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss') ",
+						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss')",
 						"type": "Expression"
 					}
 				}
+			},
+			{
+				"name": "Generate Landed to Sourced",
+				"type": "DatabricksSparkPython",
+				"dependsOn": [
+					{
+						"activity": "Extract data Jsearch",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
+					"parameters": [
+						"Generate_Sourced_Fact_Job.process",
+						"@variables('Slot')",
+						"@variables('Submission')",
+						"@pipeline().globalParameters.root",
+						"JSearch",
+						"@pipeline().RunId",
+						"Sourced"
+					]
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
+		"parameters": {
+			"Slot": {
+				"type": "string",
+				"defaultValue": "-1000"
+			},
+			"Submission": {
+				"type": "string",
+				"defaultValue": "-2"
+			},
+			"SourceSystem": {
+				"type": "string",
+				"defaultValue": "JSearch"
+			}
+		},
 		"variables": {
 			"Slot": {
 				"type": "String"

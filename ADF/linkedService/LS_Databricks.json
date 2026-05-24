@@ -1,0 +1,19 @@
+{
+	"name": "LS_Databricks",
+	"properties": {
+		"annotations": [],
+		"type": "AzureDatabricks",
+		"typeProperties": {
+			"domain": "https://adb-7405612273967020.0.azuredatabricks.net",
+			"accessToken": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_KV_job_trend_analytics",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "ADF-ADB-PAT"
+			},
+			"existingClusterId": "0524-124923-ycq7qkya"
+		}
+	}
+}

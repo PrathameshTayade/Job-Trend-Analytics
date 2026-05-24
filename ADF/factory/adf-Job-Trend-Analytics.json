@@ -1,6 +1,12 @@
 {
 	"name": "adf-Job-Trend-Analytics",
 	"properties": {
+		"globalParameters": {
+			"root": {
+				"type": "string",
+				"value": "lakeprod"
+			}
+		},
 		"trustModeClaimForMi": {
 			"value": "Enabled",
 			"editable": true

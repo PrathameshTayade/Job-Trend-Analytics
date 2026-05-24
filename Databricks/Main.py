@@ -2,7 +2,7 @@ import sys
 import importlib
 import traceback
 from pyspark.sql import SparkSession
-from Jobs.run_context import Run_context
+from run_context import Run_context
 spark = SparkSession.builder.getOrCreate()
 
 job_param = sys.argv[1]
