@@ -3,6 +3,7 @@ from pyspark.sql import DataFrame, SparkSession
 ADLS_CONTAINER = "lakeprod"
 ADLS_ACCOUNT = "stajobtrendanalytics"
 
+SOURCED_FOLDER = 'Sourced'
 CLEANSED_FOLDER = "Cleansed"
 INTEGRATED_FOLDER = "Integrated"
 PRESENTED_FOLDER = "Presented"
@@ -17,6 +18,9 @@ def _join_path(*parts: str) -> str:
     segments = [part.strip("/") for part in parts if part]
     return "/".join([base, *segments])
 
+
+def get_sourced_path(*relative_path: str) -> str:
+    return _join_path(SOURCED_FOLDER, *relative_path)
 
 def get_cleansed_path(*relative_path: str) -> str:
     return _join_path(CLEANSED_FOLDER, *relative_path)
@@ -49,6 +53,14 @@ def _path_from_run(layer_folder: str, relative_path: str, run) -> str:
 def read_parquet(spark: SparkSession, path: str) -> DataFrame:
     return spark.read.parquet(path)
 
+
+def read_parquet_sourced(
+    spark: SparkSession,
+    relative_path: str = "",
+    run=None,
+) -> DataFrame:
+    path = _path_from_run(SOURCED_FOLDER, relative_path, run)
+    return read_parquet(spark, path)
 
 def read_parquet_cleansed(
     spark: SparkSession,

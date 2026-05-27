@@ -210,6 +210,42 @@
 					"referenceName": "LS_Databricks",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Generate Sourced to Cleansed",
+				"type": "DatabricksSparkPython",
+				"dependsOn": [
+					{
+						"activity": "Generate Landed to Sourced",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
+					"parameters": [
+						"Generate_Cleansed_Fact_Job.process",
+						"@variables('Slot')",
+						"@variables('Submission')",
+						"@pipeline().globalParameters.root",
+						"JSearch",
+						"@pipeline().RunId",
+						"Cleansed"
+					]
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks",
+					"type": "LinkedServiceReference"
+				}
 			}
 		],
 		"parameters": {
