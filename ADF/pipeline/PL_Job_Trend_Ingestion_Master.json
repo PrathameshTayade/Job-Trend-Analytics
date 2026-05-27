@@ -72,6 +72,8 @@
 			{
 				"name": "Extract data Jsearch",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "Set Submission",
@@ -146,7 +148,7 @@
 				"typeProperties": {
 					"variableName": "Slot",
 					"value": {
-						"value": "@concat(formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd'))",
+						"value": "@if(not(pipeline().parameters.Manual_Slot)\n,\nconcat(formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd')),pipeline().parameters.Slot\n\n)",
 						"type": "Expression"
 					}
 				}
@@ -170,7 +172,7 @@
 				"typeProperties": {
 					"variableName": "Submission",
 					"value": {
-						"value": "@formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss')",
+						"value": "@if(not(pipeline().parameters.Manual_Slot)\n,\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss'),pipeline().parameters.Submission\n)",
 						"type": "Expression"
 					}
 				}
@@ -181,6 +183,12 @@
 				"dependsOn": [
 					{
 						"activity": "Extract data Jsearch",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Query_Source",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -246,20 +254,107 @@
 					"referenceName": "LS_Databricks",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "Query_Source",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Set Submission",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@pipeline().parameters.Query_Source",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Extract data Jsearch_copy1",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "RestSource",
+									"httpRequestTimeout": "00:01:40",
+									"requestInterval": "00.00:00:00.010",
+									"requestMethod": "GET",
+									"additionalHeaders": {
+										"Content-Type": "application/json",
+										"x-rapidapi-host": "jsearch.p.rapidapi.com"
+									},
+									"paginationRules": {
+										"supportRFC5988": "true"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "PreserveHierarchy"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "DS_Rest_Jsearch",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "DS_Json",
+									"type": "DatasetReference",
+									"parameters": {
+										"Container": "lakeprod",
+										"Folder": {
+											"value": "@concat( 'Landed/', 'JSearch','/',variables('Slot'), '/',variables('Submission'))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
 			}
 		],
 		"parameters": {
 			"Slot": {
 				"type": "string",
-				"defaultValue": "-1000"
+				"defaultValue": "2026-05-27"
 			},
 			"Submission": {
 				"type": "string",
-				"defaultValue": "-2"
+				"defaultValue": "234409"
 			},
 			"SourceSystem": {
 				"type": "string",
 				"defaultValue": "JSearch"
+			},
+			"Manual_Slot": {
+				"type": "bool",
+				"defaultValue": true
+			},
+			"Query_Source": {
+				"type": "bool",
+				"defaultValue": false
 			}
 		},
 		"variables": {
