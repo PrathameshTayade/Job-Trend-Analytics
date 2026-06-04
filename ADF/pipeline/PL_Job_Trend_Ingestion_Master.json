@@ -3,140 +3,6 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Extract data",
-				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "Set Submission",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "RestSource",
-						"httpRequestTimeout": "00:01:40",
-						"requestInterval": "00.00:00:00.010",
-						"requestMethod": "GET",
-						"additionalHeaders": {
-							"Content-Type": "application/json",
-							"x-rapidapi-host": "linkedin-job-search-api.p.rapidapi.com"
-						},
-						"paginationRules": {
-							"supportRFC5988": "true"
-						}
-					},
-					"sink": {
-						"type": "JsonSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings",
-							"copyBehavior": "PreserveHierarchy"
-						},
-						"formatSettings": {
-							"type": "JsonWriteSettings"
-						}
-					},
-					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "DS_Rest",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "DS_Json",
-						"type": "DatasetReference",
-						"parameters": {
-							"Container": "lakeprod",
-							"Folder": {
-								"value": "@concat( 'Landed/', 'Linkedin','/',variables('Slot'), '/',variables('Submission'))",
-								"type": "Expression"
-							}
-						}
-					}
-				]
-			},
-			{
-				"name": "Extract data Jsearch",
-				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "Set Submission",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "RestSource",
-						"httpRequestTimeout": "00:01:40",
-						"requestInterval": "00.00:00:00.010",
-						"requestMethod": "GET",
-						"additionalHeaders": {
-							"Content-Type": "application/json",
-							"x-rapidapi-host": "jsearch.p.rapidapi.com"
-						},
-						"paginationRules": {
-							"supportRFC5988": "true"
-						}
-					},
-					"sink": {
-						"type": "JsonSink",
-						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings",
-							"copyBehavior": "PreserveHierarchy"
-						},
-						"formatSettings": {
-							"type": "JsonWriteSettings"
-						}
-					},
-					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "DS_Rest_Jsearch",
-						"type": "DatasetReference"
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "DS_Json",
-						"type": "DatasetReference",
-						"parameters": {
-							"Container": "lakeprod",
-							"Folder": {
-								"value": "@concat( 'Landed/', 'JSearch','/',variables('Slot'), '/',variables('Submission'))",
-								"type": "Expression"
-							}
-						}
-					}
-				]
-			},
-			{
 				"name": "Set Slot",
 				"type": "SetVariable",
 				"dependsOn": [],
@@ -148,7 +14,7 @@
 				"typeProperties": {
 					"variableName": "Slot",
 					"value": {
-						"value": "@if(not(pipeline().parameters.Manual_Slot)\n,\nconcat(formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd')),pipeline().parameters.Slot\n\n)",
+						"value": "@if(not(pipeline().parameters.Manual_Slot), formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy-MM-dd'), pipeline().parameters.Slot)",
 						"type": "Expression"
 					}
 				}
@@ -172,92 +38,14 @@
 				"typeProperties": {
 					"variableName": "Submission",
 					"value": {
-						"value": "@if(not(pipeline().parameters.Manual_Slot)\n,\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss'),pipeline().parameters.Submission\n)",
+						"value": "@if(not(pipeline().parameters.Manual_Slot), formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss'), pipeline().parameters.Submission)",
 						"type": "Expression"
 					}
 				}
 			},
 			{
-				"name": "Generate Landed to Sourced",
-				"type": "DatabricksSparkPython",
-				"dependsOn": [
-					{
-						"activity": "Extract data Jsearch",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Query_Source",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
-					"parameters": [
-						"Generate_Sourced_Fact_Job.process",
-						"@variables('Slot')",
-						"@variables('Submission')",
-						"@pipeline().globalParameters.root",
-						"JSearch",
-						"@pipeline().RunId",
-						"Sourced"
-					]
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_Databricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Generate Sourced to Cleansed",
-				"type": "DatabricksSparkPython",
-				"dependsOn": [
-					{
-						"activity": "Generate Landed to Sourced",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
-					"parameters": [
-						"Generate_Cleansed_Fact_Job.process",
-						"@variables('Slot')",
-						"@variables('Submission')",
-						"@pipeline().globalParameters.root",
-						"JSearch",
-						"@pipeline().RunId",
-						"Cleansed"
-					]
-				},
-				"linkedServiceName": {
-					"referenceName": "LS_Databricks",
-					"type": "LinkedServiceReference"
-				}
-			},
-			{
-				"name": "Query_Source",
-				"type": "IfCondition",
+				"name": "PL_Job_Trend_Ingestion_Source",
+				"type": "ExecutePipeline",
 				"dependsOn": [
 					{
 						"activity": "Set Submission",
@@ -266,95 +54,81 @@
 						]
 					}
 				],
+				"policy": {
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"expression": {
-						"value": "@pipeline().parameters.Query_Source",
-						"type": "Expression"
+					"pipeline": {
+						"referenceName": "PL_Job_Trend_Ingestion_Source",
+						"type": "PipelineReference"
 					},
-					"ifTrueActivities": [
-						{
-							"name": "Extract data Jsearch_copy1",
-							"type": "Copy",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "RestSource",
-									"httpRequestTimeout": "00:01:40",
-									"requestInterval": "00.00:00:00.010",
-									"requestMethod": "GET",
-									"additionalHeaders": {
-										"Content-Type": "application/json",
-										"x-rapidapi-host": "jsearch.p.rapidapi.com"
-									},
-									"paginationRules": {
-										"supportRFC5988": "true"
-									}
-								},
-								"sink": {
-									"type": "JsonSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings",
-										"copyBehavior": "PreserveHierarchy"
-									},
-									"formatSettings": {
-										"type": "JsonWriteSettings"
-									}
-								},
-								"enableStaging": false
-							},
-							"inputs": [
-								{
-									"referenceName": "DS_Rest_Jsearch",
-									"type": "DatasetReference"
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "DS_Json",
-									"type": "DatasetReference",
-									"parameters": {
-										"Container": "lakeprod",
-										"Folder": {
-											"value": "@concat( 'Landed/', 'JSearch','/',variables('Slot'), '/',variables('Submission'))",
-											"type": "Expression"
-										}
-									}
-								}
-							]
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@variables('Slot')",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@variables('Submission')",
+							"type": "Expression"
+						},
+						"Manual_Slot": true,
+						"Query_Source": {
+							"value": "@pipeline().parameters.Query_Source",
+							"type": "Expression"
 						}
-					]
+					}
+				}
+			},
+			{
+				"name": "PL_Job_Trend_Ingestion_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "PL_Job_Trend_Ingestion_Source",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Job_Trend_Ingestion_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@variables('Slot')",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@variables('Submission')",
+							"type": "Expression"
+						},
+						"SourceSystem": "JSearch",
+						"Manual_Slot": true
+					}
 				}
 			}
 		],
 		"parameters": {
 			"Slot": {
-				"type": "string",
-				"defaultValue": "2026-05-27"
+				"type": "string"
 			},
 			"Submission": {
-				"type": "string",
-				"defaultValue": "234409"
-			},
-			"SourceSystem": {
-				"type": "string",
-				"defaultValue": "JSearch"
+				"type": "string"
 			},
 			"Manual_Slot": {
-				"type": "bool",
-				"defaultValue": true
+				"type": "bool"
 			},
 			"Query_Source": {
-				"type": "bool",
-				"defaultValue": false
+				"type": "bool"
 			}
 		},
 		"variables": {

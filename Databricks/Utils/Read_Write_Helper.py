@@ -1,4 +1,6 @@
 from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql.types import StructType
+from pyspark.sql.functions import col
 
 ADLS_CONTAINER = "lakeprod"
 ADLS_ACCOUNT = "stajobtrendanalytics"
@@ -125,3 +127,13 @@ def write_parquet_presented(
 ) -> None:
     path = _path_from_run(PRESENTED_FOLDER, relative_path, run)
     write_parquet(df, path, mode)
+
+
+
+def apply_schema(df: DataFrame, schema: StructType) -> DataFrame:
+    return df.select([
+        col(field.name)
+        .cast(field.dataType)
+        .alias(field.name)
+        for field in schema.fields
+    ])
