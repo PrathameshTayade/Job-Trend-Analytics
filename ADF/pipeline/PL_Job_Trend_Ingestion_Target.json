@@ -66,6 +66,37 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "PL_Dim_Skills_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Dim_Skills_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@pipeline().parameters.Slot",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@pipeline().parameters.Submission",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@pipeline().parameters.Manual_Slot",
+							"type": "Expression"
+						},
+						"SourceSystem": "JSearch"
+					}
+				}
 			}
 		],
 		"parameters": {
