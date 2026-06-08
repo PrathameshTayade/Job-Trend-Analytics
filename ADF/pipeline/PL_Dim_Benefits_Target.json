@@ -1,0 +1,143 @@
+{
+	"name": "PL_Dim_Benefits_Target",
+	"properties": {
+		"activities": [
+			{
+				"name": "Generate Cleansed to Integrated",
+				"type": "DatabricksSparkPython",
+				"dependsOn": [
+					{
+						"activity": "Set Submission",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
+					"parameters": [
+						"Generate_Integrated_Dim_Benefits.process",
+						"@variables('Slot')",
+						"@variables('Submission')",
+						"@pipeline().globalParameters.root",
+						"@pipeline().parameters.SourceSystem",
+						"@pipeline().RunId",
+						"Integrated"
+					]
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "Set Slot",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Slot",
+					"value": {
+						"value": "@if(not(pipeline().parameters.Manual_Slot)\n,\nconcat(formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'MM'), '-', formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'dd')),pipeline().parameters.Slot\n\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Submission",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Slot",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Submission",
+					"value": {
+						"value": "@if(not(pipeline().parameters.Manual_Slot)\n,\nformatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss'),pipeline().parameters.Submission\n)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Generate Integrated to Presented",
+				"type": "DatabricksSparkPython",
+				"dependsOn": [
+					{
+						"activity": "Generate Cleansed to Integrated",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
+					"parameters": [
+						"Generate_Presented_Dim_Benefits.process",
+						"@variables('Slot')",
+						"@variables('Submission')",
+						"@pipeline().globalParameters.root",
+						"@pipeline().parameters.SourceSystem",
+						"@pipeline().RunId",
+						"Presented"
+					]
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_Databricks",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"Slot": {
+				"type": "string"
+			},
+			"Submission": {
+				"type": "string"
+			},
+			"Manual_Slot": {
+				"type": "bool"
+			},
+			"SourceSystem": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"Slot": {
+				"type": "String"
+			},
+			"Submission": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}

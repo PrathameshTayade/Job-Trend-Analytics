@@ -14,3 +14,5 @@ dim_Employer_Schema =  StructType([
 
 ])
 
+
+dim_Benefits_Schema_version = 1
