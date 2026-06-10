@@ -29,7 +29,10 @@
 							"value": "@pipeline().parameters.Manual_Slot",
 							"type": "Expression"
 						},
-						"SourceSystem": "JSearch"
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
 					}
 				}
 			},
@@ -61,7 +64,7 @@
 							"type": "Expression"
 						},
 						"SourceSystem": {
-							"value": "JSearch",
+							"value": "@pipeline().parameters.SourceSystem",
 							"type": "Expression"
 						}
 					}
@@ -94,7 +97,44 @@
 							"value": "@pipeline().parameters.Manual_Slot",
 							"type": "Expression"
 						},
-						"SourceSystem": "JSearch"
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "PL_Fact_Job_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Fact_Job_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@pipeline().parameters.Slot",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@pipeline().parameters.Submission",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@pipeline().parameters.Manual_Slot",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
 					}
 				}
 			}

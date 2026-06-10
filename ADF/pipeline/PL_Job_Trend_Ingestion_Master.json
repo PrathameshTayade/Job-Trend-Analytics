@@ -73,7 +73,14 @@
 							"value": "@variables('Submission')",
 							"type": "Expression"
 						},
-						"Manual_Slot": true,
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@not(pipeline().parameters.Manual_Slot)",
+							"type": "Expression"
+						},
 						"Query_Source": {
 							"value": "@pipeline().parameters.Query_Source",
 							"type": "Expression"
@@ -111,8 +118,14 @@
 							"value": "@variables('Submission')",
 							"type": "Expression"
 						},
-						"SourceSystem": "JSearch",
-						"Manual_Slot": true
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@not(pipeline().parameters.Manual_Slot)",
+							"type": "Expression"
+						}
 					}
 				}
 			}
@@ -129,6 +142,10 @@
 			},
 			"Query_Source": {
 				"type": "bool"
+			},
+			"SourceSystem": {
+				"type": "string",
+				"defaultValue": "JSearch"
 			}
 		},
 		"variables": {
