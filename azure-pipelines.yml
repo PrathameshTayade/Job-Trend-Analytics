@@ -101,15 +101,16 @@ stages:
     steps:
     - checkout: self
 
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.10'
+    - powershell: |
+        python --version
+        databricks -v
+      displayName: Verify prerequisites
 
     - script: |
-        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
         databricks bundle validate -t $(bundleTarget)
         databricks bundle deploy -t $(bundleTarget)
       displayName: Validate and deploy Databricks bundle
+      retryCountOnTaskFailure: 5
       env:
         DATABRICKS_HOST: $(databricksHost)
         DATABRICKS_CLIENT_ID: $(databricksClientId)
