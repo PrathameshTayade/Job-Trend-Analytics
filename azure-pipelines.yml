@@ -107,6 +107,7 @@ stages:
       displayName: Verify prerequisites
 
     - script: |
+        cd "$(Build.SourcesDirectory)\Databricks"
         databricks bundle validate -t $(bundleTarget)
         databricks bundle deploy -t $(bundleTarget)
       displayName: Validate and deploy Databricks bundle
