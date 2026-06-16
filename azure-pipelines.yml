@@ -94,6 +94,102 @@ stages:
                   --parameters "@$(Pipeline.Workspace)\adf-arm\ARMTemplateParametersForFactory.json" `
                   --parameters factoryName="$(targetAdfName)"
 
+trigger:
+- main
+
+pool:
+  name: job-trend-self-hosted
+
+variables:
+- group: job-trend-analytics-dev
+
+stages:
+- stage: Build_ADF
+  jobs:
+  - job: BuildADF
+    steps:
+    - checkout: self
+      retryCountOnTaskFailure: 5
+
+    - task: UseNode@1
+      inputs:
+        version: '20.x'
+
+    - task: Npm@1
+      inputs:
+        command: install
+        workingDir: '$(Build.SourcesDirectory)'
+
+    - powershell: |
+        New-Item -ItemType Directory -Force -Path "$(Build.ArtifactStagingDirectory)\adf"
+      displayName: Create ADF artifact folder
+
+    - task: Npm@1
+      displayName: Validate and export ADF ARM template
+      inputs:
+        command: custom
+        workingDir: '$(Build.SourcesDirectory)'
+        customCommand: >
+          run build export
+          "$(Build.SourcesDirectory)\ADF"
+          "/subscriptions/$(subscriptionId)/resourceGroups/$(sourceAdfResourceGroup)/providers/Microsoft.DataFactory/factories/$(sourceAdfName)"
+          "adf"
+
+    - powershell: |
+        Get-ChildItem "$(Build.ArtifactStagingDirectory)\adf" -Recurse
+
+      displayName: Check exported ADF files
+    - powershell: |
+        Write-Host "Sources Directory:"
+        Get-ChildItem "$(Build.SourcesDirectory)\adf" -Recurse
+
+        Write-Host "Artifact Staging Directory:"
+        Get-ChildItem "$(Build.ArtifactStagingDirectory)\adf" -Recurse
+      displayName: Check exported ADF files
+
+
+    - task: PublishPipelineArtifact@1
+      retryCountOnTaskFailure: 5
+      inputs:
+        targetPath: '$(Build.SourcesDirectory)\adf'
+        artifact: 'adf-arm'
+
+- stage: Deploy_ADF
+  dependsOn: Build_ADF
+  jobs:
+  - deployment: DeployADF
+    environment: dev
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: adf-arm
+
+          - powershell: |
+              Write-Host "=== Azure CLI Version ==="
+              az --version
+
+              Write-Host "=== Pipeline Workspace ==="
+              Get-ChildItem "$(Pipeline.Workspace)"
+
+              Write-Host "=== ADF Artifact Contents ==="
+              Get-ChildItem "$(Pipeline.Workspace)\adf-arm" -Recurse
+            displayName: Debug Agent
+
+          - task: AzureCLI@2
+            retryCountOnTaskFailure: 5
+            inputs:
+              azureSubscription: '$(azureServiceConnection)'
+              scriptType: ps
+              scriptLocation: inlineScript
+              inlineScript: |
+                az deployment group create `
+                  --resource-group "$(targetAdfResourceGroup)" `
+                  --template-file "$(Pipeline.Workspace)\adf-arm\ARMTemplateForFactory.json" `
+                  --parameters "@$(Pipeline.Workspace)\adf-arm\ARMTemplateParametersForFactory.json" `
+                  --parameters factoryName="$(targetAdfName)"
+
 - stage: Deploy_Databricks
   dependsOn: Deploy_ADF
   jobs:
@@ -101,16 +197,16 @@ stages:
     steps:
     - checkout: self
 
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.10'
+    - powershell: |
+      python --version
+      databricks -v
+    displayName: Verify prerequisites
 
     - script: |
-        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
-        databricks bundle validate -t $(bundleTarget)
+       databricks bundle validate -t $(bundleTarget)
         databricks bundle deploy -t $(bundleTarget)
       displayName: Validate and deploy Databricks bundle
-      env:
+     env:
         DATABRICKS_HOST: $(databricksHost)
         DATABRICKS_CLIENT_ID: $(databricksClientId)
         DATABRICKS_CLIENT_SECRET: $(databricksClientSecret)
