@@ -19,7 +19,7 @@ def process(run):
          df.write.mode("append").partitionBy('SourceSystem','publisher').format("delta").save(presented_path)
     else :
         df_presented = spark.read.format('delta').load(presented_path)
-        new = df.join(df_presented, on=['job_id','EmployerKey'], 'left-anti')
+        new = df.join(df_presented, on=['job_id','EmployerKey'], how='left-anti')
         df.write.mode("append").partitionBy('SourceSystem','publisher').format("delta").save(presented_path)
 
     
