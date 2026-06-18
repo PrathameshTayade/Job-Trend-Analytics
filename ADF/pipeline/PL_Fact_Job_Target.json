@@ -22,7 +22,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
+					"pythonFile": "/Workspace/Shared/.bundle/job-trend-analytics/prod/files/Main.py",
 					"parameters": [
 						"Generate_Integrated_Fact_Job.process",
 						"@variables('Slot')",
@@ -99,7 +99,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"pythonFile": "/Workspace/Repos/tayadeprathameshlearning25@gmail.com/Job-Trend-Analytics/Databricks/Main.py",
+					"pythonFile": "/Workspace/Shared/.bundle/job-trend-analytics/prod/files/Main.py",
 					"parameters": [
 						"Generate_Presented_Fact_Job.process",
 						"@variables('Slot')",
