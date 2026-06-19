@@ -25,9 +25,8 @@ steps:
     }
   displayName: Set Environment
 
-  - powershell: |
-
-    $sql = Get-Content "SQL/register_tables.sql" -Raw
+- powershell: |
+    $sql = Get-Content "$(Build.SourcesDirectory)\Databricks\SQL\register_tables.sql" -Raw
     $sql = $sql.Replace('${CATALOG}','$(CATALOG)')
 
     Set-Content register_tables_resolved.sql $sql
@@ -35,12 +34,10 @@ steps:
     databricks sql query execute `
       --warehouse-id $(SQL_WAREHOUSE_ID) `
       --file register_tables_resolved.sql
-
   displayName: Register Tables
 
-  - powershell: |
-
-    Get-ChildItem SQL/Views/*.sql | ForEach-Object {
+- powershell: |
+    Get-ChildItem "$(Build.SourcesDirectory)\Databricks\SQL\Views\*.sql" | ForEach-Object {
 
         Write-Host "Deploying $($_.Name)"
 
@@ -53,5 +50,4 @@ steps:
           --warehouse-id $(SQL_WAREHOUSE_ID) `
           --file temp.sql
     }
-
   displayName: Deploy Views
