@@ -2,6 +2,7 @@
 from pyspark.sql import SparkSession
 from Utils.Read_Write_Helper import get_adls, read_parquet
 from Utils.FactSchema import fact_Job_Schema_Version
+from delta.tables import DeltaTable
 
 
 def _integrated_fact_job_path(data_provider: str, slot: str, submission: str) -> str:
