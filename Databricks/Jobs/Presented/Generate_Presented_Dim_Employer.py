@@ -38,7 +38,7 @@ def process(run):
                     "target.country" : "source.country",
                     "target.Slot" : "source.Slot",
                     "target.Submission" : "source.Submission",
-                    "target.SourceSystem" : "source.SourceSystem",}).whenNotMatchedInsertAll()execute()
+                    "target.SourceSystem" : "source.SourceSystem",}).whenNotMatchedInsertAll().execute()
 
     
 

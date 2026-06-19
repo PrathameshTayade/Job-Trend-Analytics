@@ -1,6 +1,8 @@
 
 from pyspark.sql import SparkSession
 from Utils.Read_Write_Helper import get_adls, read_parquet
+from Utils.FactSchema import fact_Job_Schema_Version
+
 
 def _integrated_fact_job_path(data_provider: str, slot: str, submission: str) -> str:
     return f"{get_adls()}Integrated/{data_provider}/Fact_Job/{slot}/{submission}"
