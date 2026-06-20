@@ -13,6 +13,7 @@ variables:
 steps:
 
 - checkout: self
+  retryCountOnTaskFailure: 5
 
 - powershell: |
     Write-Host "Branch = $(Build.SourceBranch)"
