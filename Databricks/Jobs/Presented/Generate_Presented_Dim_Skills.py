@@ -20,4 +20,4 @@ def process(run):
     
 
 
-    df.write.mode("append").parquet(_presented_dim_skills_path(data_provider, slot, submission))
+    df.write.mode("append").format('delta').save(_presented_dim_skills_path(data_provider, slot, submission))
