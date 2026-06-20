@@ -15,6 +15,10 @@ steps:
 - checkout: self
 
 - powershell: |
+    Write-Host "Branch = $(Build.SourceBranch)"
+    Write-Host "Commit = $(Build.SourceVersion)"
+
+- powershell: |
     if ("$(Build.SourceBranchName)" -eq "main")
     {
         Write-Host "##vso[task.setvariable variable=CATALOG]ddh_prod"
