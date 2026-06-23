@@ -1,3 +1,33 @@
+# Job Trend Analytics
+
+An end-to-end Azure data engineering project that ingests job posting data from a REST API, processes it through a layered data lake architecture, and prepares curated datasets for analytics and Power BI reporting.
+
+## Project Overview
+
+Job Trend Analytics is designed to analyze job market patterns such as in-demand skills, employers, salary ranges, remote job availability, job locations, and benefits. The project uses Azure Data Factory for orchestration, Azure Databricks with PySpark for transformation, Azure Data Lake Storage for scalable storage, Delta Lake for curated analytics tables, and Azure DevOps for CI/CD deployment.
+
+## Architecture
+
+```text
+REST API
+   |
+   v
+Azure Data Factory
+   |
+   v
+Azure Data Lake Storage
+   |
+   +-- Landed
+   +-- Sourced
+   +-- Cleansed
+   +-- Integrated
+   +-- Presented
+   |
+   v
+Databricks / PySpark / Delta Lake
+   |
+   v
+Power BI
 ```
 
 ## Key Features
