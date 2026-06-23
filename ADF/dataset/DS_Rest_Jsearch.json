@@ -1,0 +1,15 @@
+{
+	"name": "DS_Rest_Jsearch",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_Rest_Jsearch",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": "search-v2?query=developer%20jobs%20in%20chicago&num_pages=1&country=us&date_posted=all"
+		},
+		"schema": []
+	}
+}

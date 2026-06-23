@@ -1,0 +1,158 @@
+{
+	"name": "PL_Job_Trend_Ingestion_Target",
+	"properties": {
+		"activities": [
+			{
+				"name": "PL_Dim_Employer_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Dim_Employer_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@pipeline().parameters.Slot",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@pipeline().parameters.Submission",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@pipeline().parameters.Manual_Slot",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "PL_Dim_Benefits_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Dim_Benefits_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@pipeline().parameters.Slot",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@pipeline().parameters.Submission",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@pipeline().parameters.Manual_Slot",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "PL_Dim_Skills_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Dim_Skills_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@pipeline().parameters.Slot",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@pipeline().parameters.Submission",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@pipeline().parameters.Manual_Slot",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "PL_Fact_Job_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Fact_Job_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@pipeline().parameters.Slot",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@pipeline().parameters.Submission",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@pipeline().parameters.Manual_Slot",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Slot": {
+				"type": "string"
+			},
+			"Submission": {
+				"type": "string"
+			},
+			"SourceSystem": {
+				"type": "string"
+			},
+			"Manual_Slot": {
+				"type": "bool"
+			}
+		},
+		"annotations": []
+	}
+}

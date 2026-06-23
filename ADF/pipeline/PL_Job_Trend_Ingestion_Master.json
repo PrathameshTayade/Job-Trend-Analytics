@@ -1,0 +1,161 @@
+{
+	"name": "PL_Job_Trend_Ingestion_Master",
+	"properties": {
+		"activities": [
+			{
+				"name": "Set Slot",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Slot",
+					"value": {
+						"value": "@if(not(pipeline().parameters.Manual_Slot), formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'yyyy-MM-dd'), pipeline().parameters.Slot)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Set Submission",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set Slot",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Submission",
+					"value": {
+						"value": "@if(not(pipeline().parameters.Manual_Slot), formatDateTime(convertTimeZone(utcNow(),'UTC','India Standard Time'),'HHmmss'), pipeline().parameters.Submission)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "PL_Job_Trend_Ingestion_Source",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Set Submission",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Job_Trend_Ingestion_Source",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@variables('Slot')",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@variables('Submission')",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@not(pipeline().parameters.Manual_Slot)",
+							"type": "Expression"
+						},
+						"Query_Source": {
+							"value": "@pipeline().parameters.Query_Source",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			{
+				"name": "PL_Job_Trend_Ingestion_Target",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "PL_Job_Trend_Ingestion_Source",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_Job_Trend_Ingestion_Target",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"Slot": {
+							"value": "@variables('Slot')",
+							"type": "Expression"
+						},
+						"Submission": {
+							"value": "@variables('Submission')",
+							"type": "Expression"
+						},
+						"SourceSystem": {
+							"value": "@pipeline().parameters.SourceSystem",
+							"type": "Expression"
+						},
+						"Manual_Slot": {
+							"value": "@not(pipeline().parameters.Manual_Slot)",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"parameters": {
+			"Slot": {
+				"type": "string"
+			},
+			"Submission": {
+				"type": "string"
+			},
+			"Manual_Slot": {
+				"type": "bool"
+			},
+			"Query_Source": {
+				"type": "bool"
+			},
+			"SourceSystem": {
+				"type": "string",
+				"defaultValue": "JSearch"
+			}
+		},
+		"variables": {
+			"Slot": {
+				"type": "String"
+			},
+			"Submission": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}

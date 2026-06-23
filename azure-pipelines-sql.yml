@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include:
+      - develop
+      - main
+
+pool:
+  name: job-trend-self-hosted
+
+variables:
+- group: job-trend-analytics-dev
+
+steps:
+
+- checkout: self
+  retryCountOnTaskFailure: 5
+
+- powershell: |
+    Write-Host "Branch = $(Build.SourceBranch)"
+    Write-Host "Commit = $(Build.SourceVersion)"
+
+- powershell: |
+    if ("$(Build.SourceBranchName)" -eq "main")
+    {
+        Write-Host "##vso[task.setvariable variable=CATALOG]ddh_prod"
+    }
+    else
+    {
+        Write-Host "##vso[task.setvariable variable=CATALOG]ddh_dev"
+    }
+  displayName: Set Environment
+
+- powershell: |
+    $sql = Get-Content "$(Build.SourcesDirectory)\Databricks\SQL\register_tables.sql" -Raw
+    $sql = $sql.Replace('${CATALOG}','$(CATALOG)')
+
+    Set-Content register_tables_resolved.sql $sql
+
+    databricks sql query execute `
+      --warehouse-id $(SQL_WAREHOUSE_ID) `
+      --file register_tables_resolved.sql
+  displayName: Register Tables
+
+- powershell: |
+    Get-ChildItem "$(Build.SourcesDirectory)\Databricks\SQL\Views\*.sql" | ForEach-Object {
+
+        Write-Host "Deploying $($_.Name)"
+
+        $sql = Get-Content $_.FullName -Raw
+        $sql = $sql.Replace('${CATALOG}','$(CATALOG)')
+
+        Set-Content temp.sql $sql
+
+        databricks sql query execute `
+          --warehouse-id $(SQL_WAREHOUSE_ID) `
+          --file temp.sql
+    }
+  displayName: Deploy Views
